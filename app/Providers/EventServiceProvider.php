@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Plan;
+use App\Observers\PlanObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -29,6 +31,6 @@ class EventServiceProvider extends ServiceProvider
     {
         parent::boot();
 
-        //
+        Plan::observe(PlanObserver::class);
     }
 }
