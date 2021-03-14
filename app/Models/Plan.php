@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -28,6 +29,16 @@ class Plan extends Model
     }
     
     /**
+     * profiles
+     *
+     * @return BelongsToMany
+     */
+    public function profiles():BelongsToMany
+    {
+        return $this->belongsToMany(Profile::class);
+    }
+    
+    /**
      * search
      *
      * @param  mixed $filter
@@ -41,5 +52,28 @@ class Plan extends Model
                     ->paginate();
 
         return $resusts;
+    }
+
+       
+    /**
+     * profilesAvailable
+     *
+     * @param  mixed $filter
+     * @return void
+     */
+    public function profilesAvailable($filter = null)
+    {
+        $profiles = Profile::whereNotIn('profiles.id', function($query) {
+            $query->select('plan_profile.profile_id');
+            $query->from('plan_profile');
+            $query->whereRaw("plan_profile.plan_id={$this->id}");
+        })
+        ->where(function ($queryFilter) use ($filter) {
+            if ($filter)
+                $queryFilter->where('profiles.name', 'LIKE', "%{$filter}%");
+        })
+        ->paginate();
+
+        return $profiles;
     }
 }
